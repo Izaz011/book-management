@@ -35,10 +35,10 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Please provide valid userId" })
         }
 
-        if (!isValid(ISBN) || !isbnRegex.test(ISBN)) {
+       /*  if (!isValid(ISBN) || !isbnRegex.test(ISBN)) {
             return res.status(400).send({ status: false, msg: "please provide valid ISBN" })
         }
-
+ */
         if (!isValid(category) || !Regex.test(category)) {
             return res.status(400).send({ status: false, msg: "please provide valid category" })
         }
