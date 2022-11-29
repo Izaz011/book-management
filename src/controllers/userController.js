@@ -4,7 +4,7 @@ let createUser = async function (req, res) {
     try {
         const data = req.body;
         let { title, name, phone, email, password, address } = data;
-        let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-z\-0-9]+\.)+[a-z]{2,}))$/;
+        let emailRegex = /^([a-zA-Z0-9\._]+)@([a-zA-Z0-9])+.([a-z]+)(.[a-z]+)?$/;
         let phoneRegex = /^[0]?[6789]\d{9}$/;
         let nameRegex = /^[a-zA-Z ]+$/;
         if (Object.keys(data).length == 0) {
@@ -12,6 +12,14 @@ let createUser = async function (req, res) {
         }
         if (!title) {
             return res.status(400).send({ status: false, message: "title is mandatory" })
+        }
+        const isValidTitle = (title) => {
+            const arr =
+                ["Mr", "Mrs", "Miss"]
+            return arr.includes(title)
+        }
+        if (!isValidTitle(title)) {
+            return res.status(400).send({ status: false, message: "title is invalid" })
         }
         if (!name) {
             return res.status(400).send({ status: false, message: "name is mandatory" });
@@ -45,14 +53,55 @@ let createUser = async function (req, res) {
         if (!(password.length >= 8 && password.length <= 15)) {
             return res.status(400).send({ status: false, message: "password should be valid" })
         }
-        if (!address) {
-            return res.status(400).send({ status: false, address: "address is mandatory" })
-        }
         const savedData = await userModel.create(data);
         return res.status(201).send({ status: true, data: savedData })
     } catch (error) {
         res.status(500).send({ msg: error.message });
     }
 }
+
+const jwt = require("jsonwebtoken")
+
+const isValid = function (value) {
+    if (typeof value === 'undefined' || value === null) { return false }
+    if (typeof value === 'string' && value.trim().length == 0) { return false }
+    return true
+}
+
+//              >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+const loginUser = async function (req, res) {
+    try {
+        let data = req.body;
+        let { email, password } = data
+
+
+        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "User credentials body empty!!" })
+
+        if (!isValid(email)) return res.status(400).send({ status: false, msg: "email is required!!" })
+        if (!isValid(password)) return res.status(400).send({ status: false, msg: "password is required!!" })
+
+        let findUser = await userModel.findOne({ email, password })
+        if (!findUser) return res.status(401).send({ status: false, msg: "Invalid login credentials" })
+
+        let userId = findUser._id.toString()
+
+        const token = jwt.sign({
+            userId:userId
+        }, 'booksManagementGroup32', { expiresIn: '1h' });
+
+
+        return res.status(200).send({ status: true, msg: "User logged in succesfully", data: token, iat: payload.iat, exp: payload.exp })
+
+    } catch (err) {
+        return res.status(500).send({ status: false, msg: err.message })
+    }
+
+
+}
+
+
+module.exports = { loginUser };
+
 
 module.exports.createUser = createUser;

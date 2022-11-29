@@ -15,7 +15,7 @@ mongoose.connect("mongodb+srv://izazsarkar11:pQ1xcwJzAI5R7SC6@izazlithium.7ghyok
 
 app.use('/', route);
 
-app.use( (req ,res) => {
+app.use('*', (req ,res) => {
     res.status(404).send({status : false , message :`Page Not Found , Given URL ${req.url} is incorrect for this application.`})
 })
 

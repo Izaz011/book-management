@@ -1,44 +1,68 @@
-const userModel = require('../models/userModel')
-const bookModel = require('../models/bookModel')
+const { isValidObjectId } = require("mongoose")
+const moment = require("moment")
+const bookModel = require("../models/bookModel")
 
-let stringRegex = /^[a-zA-Z]+(([',. -][a-zA-Z])?[a-zA-Z]*)*$/
+const isbnRegex = /^(?:ISBN(?:-13)?:? )?(?=[0-9]{13}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)97[89][- ]?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9]$/
+
+const Regex = /^([A-Za-z ]+){3,}$/
+
+const isValid = function (value) {
+    if (typeof value === "undefined" || value === "null") return false;
+
+    if (typeof value === 'string' && value.trim().length === 0) return false
+
+    return true;
+}
+
 
 const createBook = async function (req, res) {
     try {
         const data = req.body
-        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "data is not present" })
-        const { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data
-        if (!title || !excerpt || !userId || !ISBN || !category || !subcategory || !releasedAt) {
-            return res.status(400).send({ status: false, msg: "Please provide all fields" })
+        let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data
+        if (Object.keys(data).length == 0) {
+            return res.status(400).send({ status: false, msg: "No data provided" })
         }
-        const valisUser = await userModel.findOne({ userId: userId })
-        if (!valisUser) {
-            return res.status(400).send({ status: false, msg: "Please provide valid UserId" })
+
+        if (!isValid(title) || !Regex.test(title)) {
+            return res.status(400).send({ status: false, msg: "please provide valid title" })
         }
-        if (!stringRegex.test(title)) {
-            return res.status(400).send({ status: false, msg: "Please provide valid title" })
+
+        if (!isValid(excerpt)) {
+            return res.status(400).send({ status: false, msg: "please provide valid excerpt" })
         }
-        if (!stringRegex.test(excerpt)) {
-            return res.status(400).send({ status: false, msg: "Please provide valid excerpt" })
+
+        if (!isValidObjectId(userId) || !userId) {
+            return res.status(400).send({ status: false, msg: "Please provide valid userId" })
         }
-        /* if (!stringRegex.test(ISBN)) {
-            return res.status(400).send({ status: false, msg: "Please provide valid ISBN" })
-        } */
-        if (!stringRegex.test(category)) {
-            return res.status(400).send({ status: false, msg: "Please provide valid category" })
+
+        if (!isValid(ISBN) || !isbnRegex.test(ISBN)) {
+            return res.status(400).send({ status: false, msg: "please provide valid ISBN" })
         }
-        if (!stringRegex.test(subcategory)) {
-            return res.status(400).send({ status: false, msg: "Please provide valid subcategory" })
+
+        if (!isValid(category) || !Regex.test(category)) {
+            return res.status(400).send({ status: false, msg: "please provide valid category" })
         }
-        if (!stringRegex.test(releasedAt))
-            return res.status(400).send({ status: false, msg: "Please provide valid subcategory" })
-        const createdData = await bookModel.create(data)
-        return res.status(201).send({ status: true, msg: createdData })
+
+        if (!isValid(subcategory) || !Regex.test(subcategory)) {
+            return res.status(400).send({ status: false, msg: "please provide valid subcategory" })
+        }
+        if (!releasedAt || !moment(releasedAt, "YYYY-MM-DD", true).isValid()) {
+            return res.status(400).send({ status: false, msg: "date is not present or date format is not valid  " })
+        }
+
+        const duplicateData = await bookModel.findOne({ $or: [{ title: title }, { ISBN: ISBN }] })
+        if (duplicateData) {
+            return res.status(400).send({ status: false, msg: "title or ISBN is already given" })
+        }
+
+        const createData = await bookModel.create(data)
+
+        return res.status(201).send({ status: true, msg: "Success", data: createData })
     }
     catch (error) {
-        res.status(500).send({ status: false, msg: error.message })
+        return res.status(500).send({ status: false, msg: error.message })
     }
+
 }
 
-
-module.exports.createBook = createBook
+module.exports = { createBook }
