@@ -1,4 +1,5 @@
 userModel = require('../models/userModel')
+const jwt = require("jsonwebtoken")
 
 let createUser = async function (req, res) {
     try {
@@ -14,7 +15,7 @@ let createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "title is mandatory" })
         }
         const isValidTitle = (title) => {
-            const arr =
+            const arr = 
                 ["Mr", "Mrs", "Miss"]
             return arr.includes(title)
         }
@@ -60,7 +61,6 @@ let createUser = async function (req, res) {
     }
 }
 
-const jwt = require("jsonwebtoken")
 
 const isValid = function (value) {
     if (typeof value === 'undefined' || value === null) { return false }
@@ -91,7 +91,7 @@ const loginUser = async function (req, res) {
         }, 'booksManagementGroup32', { expiresIn: '1h' });
 
 
-        return res.status(200).send({ status: true, msg: "User logged in succesfully", data: token, iat: payload.iat, exp: payload.exp })
+        return res.status(200).send({ status: true, msg: "User logged in succesfully", data: token})
 
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
