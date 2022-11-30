@@ -35,10 +35,14 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Please provide valid userId" })
         }
 
-       /*  if (!isValid(ISBN) || !isbnRegex.test(ISBN)) {
+        if (!isValid(ISBN) ) {
             return res.status(400).send({ status: false, msg: "please provide valid ISBN" })
         }
- */
+        if(ISBN.length<10||ISBN.length>13)
+        {
+            return res.status(400).send({ status: false, msg: " ISBN must be between 10 to 13" })
+        }
+
         if (!isValid(category) || !Regex.test(category)) {
             return res.status(400).send({ status: false, msg: "please provide valid category" })
         }
@@ -199,4 +203,4 @@ const deleteBook = async function (req, res) {
     }
 }
 
-module.exports = { createBook, getBooks, updateBook, getBookById,deleteBook }
+module.exports = { createBook, getBooks, updateBook, getBookById, deleteBook }

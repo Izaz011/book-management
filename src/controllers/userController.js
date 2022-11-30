@@ -78,8 +78,8 @@ const loginUser = async function (req, res) {
 
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "User credentials body empty!!" })
 
-        if (!isValid(email)) return res.status(400).send({ status: false, msg: "email is required!!" })
-        if (!isValid(password)) return res.status(400).send({ status: false, msg: "password is required!!" })
+        if (!isValid(email)) return res.status(400).send({ status: false, msg: "email !" })
+        if (!isValid(password)) return res.status(400).send({ status: false, msg: "password !!" })
 
         let findUser = await userModel.findOne({ email, password })
         if (!findUser) return res.status(401).send({ status: false, msg: "Invalid login credentials" })
