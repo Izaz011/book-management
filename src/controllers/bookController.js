@@ -2,7 +2,7 @@ const { isValidObjectId } = require("mongoose")
 const moment = require("moment")
 const bookModel = require("../models/bookModel")
 
-const isbnRegex = /^(?:ISBN(?:-13)?:? )?(?=[0-9]{13}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)97[89][- ]?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9]$/
+const isbnRegex = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/
 
 const Regex = /^([A-Za-z ]+){3,}$/
 
@@ -35,12 +35,8 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Please provide valid userId" })
         }
 
-        if (!isValid(ISBN) ) {
+        if (!isValid(ISBN) || !isbnRegex.test(ISBN) ) {
             return res.status(400).send({ status: false, msg: "please provide valid ISBN" })
-        }
-        if(ISBN.length<10||ISBN.length>13)
-        {
-            return res.status(400).send({ status: false, msg: " ISBN must be between 10 to 13" })
         }
 
         if (!isValid(category) || !Regex.test(category)) {

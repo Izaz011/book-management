@@ -1,5 +1,5 @@
 const { isValidObjectId } = require("mongoose");
-const reviewModel = require("../models/review");
+const reviewModel = require("../models/reviewModel");
 const moment = require('moment');
 const bookModel = require("../models/bookModel");
 
