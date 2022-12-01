@@ -21,23 +21,25 @@ const authorization = async function (req, res, next) {
         const authorId = req.token.userId
         const bookId = req.params.bookId
         if (bookId) {
-            const bookData = await bookModel.findOne(bookId)
+            const bookData = await bookModel.findById(bookId)
             if (!bookData)
                 return res.status(400).send({ status: false, msg: "invalid bookId" })
-            const booksAutherId = bookData.authorId
+            const booksAutherId = bookData.userId.toString()
             if (booksAutherId !== authorId) {
                 return res.status(400).send({ status: false, msg: "Not authorized" })
             }
             next()
         }
-        const booksAutherId = req.body.userId
-        if (booksAutherId !== authorId) {
-            return res.status(400).send({ status: false, msg: "Not authorized" })  
+        else {
+            const booksAutherId = req.body.userId
+            if (booksAutherId !== authorId) {
+                return res.status(400).send({ status: false, msg: "Not authorized" })
+            }
+            next()
         }
-        next()
     } catch (err) {
         return res.status(500).send({ msg: err.message })
     }
-} 
+}
 
 module.exports = { authentication, authorization }
