@@ -122,7 +122,7 @@ const updateReview = async function (req, res) {
         if (!isValid(rId.trim())) return res.status(400).send({ status: false, msg: "Invalid review id in path params,review id should be of 24 digits" })
 
         let checkReview = await reviewModel.findOne({ _id: rId, bookId: bId })
-        if (!checkReview) return res.status(404).send({ status: false, msg: "No review found for the fiven book id!!" })
+        if (!checkReview) return res.status(404).send({ status: false, msg: "No review found for the given book id!!" })
 
         if (checkReview.isDeleted == true) return res.status(400).send({ status: false, msg: "Cann't update review for this book as it is already deleted!" })
 
