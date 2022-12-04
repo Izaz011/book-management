@@ -109,7 +109,7 @@ const updateBook = async function (req, res) {
         const bookData = await bookModel.findById(bookId)
 
         if (!bookData) {
-            return res.status(404).send({ status: false, msg: "There is no book with this Id" })
+            return res.status(404).send({ status: false, msg: "There is no book with this Id" }) 
         }
 
         if (bookData.isDeleted == true) {
@@ -138,7 +138,7 @@ const updateBook = async function (req, res) {
         }
 
         if (ISBN || ISBN == "") {
-            if (!isValid(ISBN) || !isbnRegex.test(ISBN)) {
+            if (!isValid(ISBN) ) {
                 return res.status(400).send({ status: false, msg: "please provide valid ISBN" })
             }
             updateObject.ISBN = ISBN
@@ -146,7 +146,7 @@ const updateBook = async function (req, res) {
 
         if (releasedAt || releasedAt == "") {
             if (!releasedAt || !moment(releasedAt, "YYYY-MM-DD", true).isValid()) {
-                return res.status(400).send({ status: false, msg: "date format is not valid  " })
+                return res.status(400).send({ status: false, msg: "date format is not valid  " })  
             }
             updateObject.releasedAt = releasedAt
         }
@@ -162,7 +162,7 @@ const updateBook = async function (req, res) {
     }
 }
 
-const getBookById = async (req, res) => {
+const getBookById = async (req, res) => {  
     try {
         let id = req.params.bookId;
 

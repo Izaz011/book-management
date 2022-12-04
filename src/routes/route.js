@@ -5,7 +5,7 @@ const bookController = require("../controllers/bookController")
 const reviewController=require('../controllers/reviewController')
 const mw=require('../middlewares/auth')
 
-router.post('/register', userController.createUser);
+router.post('/register', userController.createUser)
 router.post('/login', userController.loginUser)
 router.post("/books",mw.authentication, bookController.createBook)
 router.get("/books",mw.authentication,bookController.getBooks)
@@ -17,7 +17,7 @@ router.put('/books/:bookId/review/:reviewId', reviewController.updateReview)
 router.delete('/books/:bookId/review/:reviewId', reviewController.deleteReview)
 
 router.all("/*", function (req, res) {
-    return res.status(404).send({ status: false, message: "Page Not Found" })
+    return res.status(404).send({ status: false, message: "Page Not Found" })  
 })
 
 module.exports = router; 

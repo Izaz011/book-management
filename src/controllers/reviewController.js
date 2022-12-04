@@ -105,7 +105,7 @@ const deleteReview = async function (req, res) {
         return res.status(500).send({ status: false, msg: MessageChannel.error })
     }
 }
-const updateReview = async function(req, res) {
+const updateReview = async function (req, res) {
 
     try {
         let bId = req.params.bookId;
@@ -146,7 +146,7 @@ const updateReview = async function(req, res) {
 
         if (reviewedBy) {
             if (!isValid(reviewedBy)) return res.status(400).send({ status: false, msg: "Reviewd by value should be present and a valid string" })
-            obj.reviewedBy= reviewedBy;
+            obj.reviewedBy = reviewedBy;
         }
 
 
