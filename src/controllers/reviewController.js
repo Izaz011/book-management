@@ -3,6 +3,7 @@ const reviewModel = require("../models/reviewModel");
 const moment = require('moment');
 const bookModel = require("../models/bookModel");
 
+const {isValid}=require("../controllers/bookController")
 //=================================================== Creating Reviews ================================================= 
 
 const createReview = async (req, res) => {
@@ -13,7 +14,6 @@ const createReview = async (req, res) => {
         if (Object.keys(data).length == 0) {
             return res.status(400).send({ status: false, msg: "Please Provide Some Data" })
         }
-        data['bookId'] = bookId
 
         if (!bookId) {
             return res.status(400).send({ status: false, msg: "Please Provide BookId" })
@@ -24,6 +24,8 @@ const createReview = async (req, res) => {
         let bookexist = await bookModel.findById(bookId)
         if (!bookexist) { return res.status(404).send({ status: false, msg: "No Book Found" }) }
         if (bookexist['isDeleted'] === true) { return res.status(400).send({ status: false, msg: "Book Has been Deleted" }) }
+
+        data['bookId'] = bookId
 
         if (!data.rating) {
             return res.status(400).send({ status: false, msg: "Please Provide some rating" })
@@ -112,16 +114,16 @@ const updateReview = async function(req, res) {
         let { review, rating, reviewedBy } = data;
         let obj = {}
 
-        if (!isValid(bId.trim())) return res.status(400).send({ status: false, msg: "Invalid Book id in path params,book id shouls be of 24 digits" })
+        if (!isValidObjectId(bId)) return res.status(400).send({ status: false, msg: "Invalid Book id in path params,book id shouls be of 24 digits" })
 
         let checkBook = await bookModel.findById(bId)
         if (!checkBook) return res.status(404).send({ status: false, msg: "No book found for this book id!!" })
 
         if (checkBook.isDeleted == true) return res.status(400).send({ status: false, msg: "Can't update review for this book as it is already deleted!" })
 
-        if (!isValid(rId.trim())) return res.status(400).send({ status: false, msg: "Invalid review id in path params,review id should be of 24 digits" })
+        if (!isValidObjectId(rId)) return res.status(400).send({ status: false, msg: "Invalid review id in path params,review id should be of 24 digits" })
 
-        let checkReview = await reviewModel.findOne({ _id: rId, bookId: bId })
+        let checkReview = await reviewModel.findById(rId)
         if (!checkReview) return res.status(404).send({ status: false, msg: "No review found for the fiven book id!!" })
 
         if (checkReview.isDeleted == true) return res.status(400).send({ status: false, msg: "Cann't update review for this book as it is already deleted!" })
@@ -134,7 +136,7 @@ const updateReview = async function(req, res) {
         }
 
         if (rating) {
-            if (!(rating)) return res.status(400).send({ status: false, msg: "Rating is mandatory and should be a valid integer value" })
+            if (isNaN(rating)) return res.status(400).send({ status: false, msg: "Rating is mandatory and should be a valid integer value" })
 
             const rat = /^[1-5]$/.test(rating)
             if (rat == false) return res.status(400).send({ status: false, msg: "Rating should be in between 1 to 5" })
@@ -161,9 +163,4 @@ const updateReview = async function(req, res) {
 }
 
 
-module.exports.updateReview=updateReview
-
-module.exports = { deleteReview }
-
-
-module.exports.createReview = createReview;
+module.exports = {createReview,updateReview,deleteReview}

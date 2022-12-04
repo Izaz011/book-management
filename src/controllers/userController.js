@@ -54,6 +54,7 @@ let createUser = async function (req, res) {
         if (!(password.length >= 8 && password.length <= 15)) {
             return res.status(400).send({ status: false, message: "password should be valid" })
         }
+        
         const savedData = await userModel.create(data);
         return res.status(201).send({ status: true, data: savedData })
     } catch (error) {

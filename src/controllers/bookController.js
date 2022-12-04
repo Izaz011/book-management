@@ -1,6 +1,7 @@
 const { isValidObjectId } = require("mongoose")
 const moment = require("moment")
 const bookModel = require("../models/bookModel")
+const reviewModel=require("../models/reviewModel")
 
 const isbnRegex = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/
 
@@ -19,6 +20,7 @@ const createBook = async function (req, res) {
     try {
         const data = req.body
         let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data
+
         if (Object.keys(data).length == 0) {
             return res.status(400).send({ status: false, msg: "No data provided" })
         }
@@ -35,7 +37,7 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Please provide valid userId" })
         }
 
-        if (!isValid(ISBN) || !isbnRegex.test(ISBN) ) {
+        if (!isValid(ISBN) || !isbnRegex.test(ISBN)) {
             return res.status(400).send({ status: false, msg: "please provide valid ISBN" })
         }
 
@@ -164,17 +166,19 @@ const getBookById = async (req, res) => {
     try {
         let id = req.params.bookId;
 
-        if (!(id))
+        if (!isValidObjectId(id))
             return res.status(400).send({ status: false, message: "-----Book id is not valid, Please try again----->" })
 
         let bookData = await bookModel.findOne({ _id: id, isDeleted: false }).select({ __v: 0 })
-        //let reviews = await reviewModel.find({ bookId: id, isDeleted: false }).select({ _id: 0, __v: 0 })
-        //let result = bookData.toObject()
-        //result.reviewsData = reviews;
-        if (bookData.length == 0)
+
+        if (!bookData)
             return res.status(404).send({ status: false, msg: "---no documents found---->" })
 
-        res.send({ status: true, message: 'Book list', data: bookData });
+        let reviews = await reviewModel.find({bookId: id,isDeleted: false}).select({ _id: 0, __v: 0 })
+        let result = bookData.toObject()
+        result.reviewsData = reviews;
+
+        res.send({ status: true, message: 'Book list', data: result});
     } catch (err) {
         res.status(500).send({ status: false, message: err.message });
     }
@@ -185,7 +189,7 @@ const deleteBook = async function (req, res) {
     try {
         let BookId = req.params.bookId;
 
-        if (!(BookId.length == 24)) return res.status(400).send({ status: false, msg: "Please enter valid Book Id,it should be of 24 digits" })
+        if (!isValidObjectId(BookId)) return res.status(400).send({ status: false, msg: "Please enter valid Book Id,it should be of 24 digits" })
         const id = await bookModel.findOne({ _id: BookId })
         if (!id) return res.status(403).send({ status: false, msg: "this book is not present!!" })
 
@@ -199,4 +203,4 @@ const deleteBook = async function (req, res) {
     }
 }
 
-module.exports = { createBook, getBooks, updateBook, getBookById, deleteBook }
+module.exports = { createBook, getBooks, updateBook, getBookById, deleteBook,isValid }
