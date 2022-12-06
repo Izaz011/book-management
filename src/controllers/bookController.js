@@ -71,9 +71,6 @@ const getBooks = async function (req, res) {
         const data = req.query
         const { userId, category, subcategory } = data
         let filter = { isDeleted: false }
-        /* if (!userId && !category && !subcategory) {
-            return res.status(400).send({ status: false, msg: "Please provide a valid filter" })
-        } */
 
         if (category) { filter.category = category }
         if (userId) { filter.userId = userId }
@@ -204,3 +201,7 @@ const deleteBook = async function (req, res) {
 }
 
 module.exports = { createBook, getBooks, updateBook, getBookById, deleteBook,isValid }
+
+
+
+
