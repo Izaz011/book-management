@@ -40,8 +40,8 @@ const authorization = async function (req, res, next) {
         }
 
        if(!bookId){
-         if(req.body.userId!==authorId){
-            return res.status(400).send({ status: false, msg: "Not authorized" })   
+         if(req.query.userId!==authorId){
+            return res.status(400).send({ status: false, msg: "not authorized" })   
         }
         next()
     }

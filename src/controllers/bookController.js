@@ -18,6 +18,7 @@ const isValid = function (value) {
 
 const createBook = async function (req, res) {
     try {
+        
         const data = req.body
         let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data
 
@@ -72,9 +73,24 @@ const getBooks = async function (req, res) {
         const { userId, category, subcategory } = data
         let filter = { isDeleted: false }
 
-        if (category) { filter.category = category }
-        if (userId) { filter.userId = userId }
-        if (subcategory) { filter.subcategory = subcategory }
+        if (category||category=="") { 
+            if(!isValid(category)){
+                return res.status(400).send({status:false,msg:"please provide valid category"})
+             }
+            filter.category = category 
+        }
+        if (userId) {
+            if(!isValidObjectId(userId)){
+                return res.status(400).send({status:false,msg:"please provide valid userId"})  
+            }
+             filter.userId = userId 
+            }
+        if (subcategory||subcategory=="") { 
+            if(!isValid(subcategory)){
+                return res.status(400).send({status:false,msg:"please provide valid subcategory"})
+            }
+            filter.subcategory = subcategory 
+        }
 
         const bookData = await bookModel.find(filter).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 })
         if (bookData.length == 0) {
